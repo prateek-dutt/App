@@ -66,9 +66,8 @@ export default function ManufacturerDashboard() {
         let PharmaDetails={};
 
         try{
-             fetch(localhost + "getDrugKeyList").then((data) => data.json())
-            .then((data)=>
-            {
+             let data= await Contrac.methods.getDrugKeyList().call();
+          
                 data.map(drug=>
                     {
                         getManDetails(drug);
@@ -79,9 +78,9 @@ export default function ManufacturerDashboard() {
                        
 
 
-                    })
+                    });
 
-            })
+           
         }
         catch(error)
         {
