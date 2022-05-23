@@ -3,6 +3,8 @@ import SearchComponent from "./FunctionalComponents/SearchComponent";
 import Header from "./Header/Header";
 import AddProduct from "./subComponents/AddProduct";
 import Toast from "./subComponents/Toast";
+import Contract,{abi,address} from '../helper';
+import web3 from '../web3';
 //import Supplychain from '../Helper';
 import UpdateProduct from "./subComponents/UpdateProduct";
 export default function AllProducts() {
@@ -17,7 +19,7 @@ export default function AllProducts() {
     const [allDrug, setAllDrug] = useState([]);
     const [allProducts, setAllProducts] = useState([]);
     const[serialNumber,setSerialNumber]=useState('');
-  
+    
     const saveProduct = (type, message) => {
         setIsToastActive(true);
         
@@ -37,7 +39,28 @@ export default function AllProducts() {
         setAllDrug([]);
         setAllProducts([]);
         try{
-            await fetch(localhost+"getDrugKeyList").then((res)=>res.json())
+            //Updated Contract Calls
+
+            
+
+            let drugs_fetched = await Contract.methods.getDrugKeyList().call();
+            console.log(drugs_fetched);
+            await drugs_fetched.map(drug=>{
+               let result =  Contract.methods.BatchDrugDetails(drug).call();
+               let f_r;
+               result.then((result)=>{
+                   let res=result;
+                console.log(res);
+                setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID, shipmentStatus: result.Status, idealTemp: result.MaxTemperature,currentTemp:result.CurrentTemperature,manufactureDate:result.MfgTimeStamp,expiryDate:result.ExpTimeStamp}]) 
+            setAllProducts(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID, shipmentStatus: result.Status, idealTemp: result.MaxTemperature ,currentTemp:result.CurrentTemperature,manufactureDate:result.MfgTimeStamp,expiryDate:result.ExpTimeStamp}])
+                   
+               });
+               console.log(result);
+                 
+            
+            })
+
+            /* await fetch(localhost+"getDrugKeyList").then((res)=>res.json())
             .then((res)=>{
                 if(res)
                 {
@@ -49,7 +72,7 @@ export default function AllProducts() {
                         })
                     })
                 }
-            })    
+            })     */
         }
         catch(error)
         {
@@ -244,7 +267,7 @@ export default function AllProducts() {
                                                             <td>{product.name}</td>
                                                             <td>{product.batchId}</td>
                                                             <td>{product.status ? 'Inactive' : 'Active'}</td>
-                                                            <td><span className={product.location.toLowerCase()}>{product.location}</span></td>
+                                                            <td><span className={product.location}>{product.location}</span></td>
                                                             <td>{product.shipmentStatus}</td>
                                                             <td>{epochToDate(product.manufactureDate)}</td>
                                                             <td>{epochToDate(product.expiryDate)}</td>

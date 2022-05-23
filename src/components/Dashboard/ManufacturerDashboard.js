@@ -8,6 +8,9 @@ import Toast from "../subComponents/Toast";
 import './styles/style.css';
 import Tracking from "../subComponents/Tracking";
 import Overview from "../subComponents/Overview";
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
+
 export default function ManufacturerDashboard() {
     // const address = window.ethereum.selectedAddress;
     const currentUser = localStorage.getItem("currentUser");
@@ -35,6 +38,7 @@ export default function ManufacturerDashboard() {
     const[distlist,setDistList] = useState([]);
     const[wholesalerlist,setWholeSalerList] = useState([]);
     const[pharmalist,setPharmaList] = useState([]);
+    const[accounts,setAccounts]  = useState([]);
 
     function getManDetails(drug)
     {
@@ -91,16 +95,15 @@ export default function ManufacturerDashboard() {
     SetSelectedDrugDetails(product);
 }
     async function drugInfo() {
+
+        const acc = await web3.eth.getAccounts();
+        console.log(acc[0]);
+      
         setDrugDetList([]);
         try {
-            await fetch(localhost + "getDrugKeyList").then((data) =>
-
-                data.json()
-            )
-                .then((data) => {
-                    B(data);
-                })
-
+            let res = await Contract.methods.getDrugKeyList().call();
+            B(res);
+    
 
 
 
@@ -167,39 +170,34 @@ export default function ManufacturerDashboard() {
            // let manstat=manufacturerStatus(data);
             data.map(drug => {
 
-                fetch(localhost + "getDrugDetails/" + drug).then((result) => result.json())
-                    .then((result) => {
-                        console.log(result);
-                        console.log(drug);
-                        manufacturerStatus(drug);
-                        distributorStatus(drug);
-                        wholeDistStatus(drug);
-                        pharmaStatus(drug);
-                       console.log(ManStatus);
-                       console.log(pharmacyStatus);
-                       console.log(distStatus);
-                       console.log(wholeSalerStatus);
-                       
-                       
-                      //  let manstat="";
-                      
-                        setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus,distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}])
-                        setDrugDetList(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus, distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}])
-                      /*   setDrugInfoList(oldDta => [...oldDta, {
-                            manufactureDate: res.MfgTimeStamp,
-                            expiryDate: res.ExpTimeStamp,
-                            maxTemp: res.IdealTemperature,
-                            currentTemp: res.CurrentTemperature,
-                            currentOwner: res.CurrentproductOwner,
-                            nextOwner: res.NextOwner
-                        }]) */
+                let result =  Contract.methods.BatchDrugDetails(drug).call();
+                console.log(result);
+                console.log(drug);
+                manufacturerStatus(drug);
+                distributorStatus(drug);
+                wholeDistStatus(drug);
+                pharmaStatus(drug);
+               console.log(ManStatus);
+               console.log(pharmacyStatus);
+               console.log(distStatus);
+               console.log(wholeSalerStatus);
+               
+               result.then((result)=>{
+                setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus,distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}]);
+                setDrugDetList(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus, distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}]);
 
-                    })
+               })
+              //  let manstat="";
+              
+              
+               
+                let r  = Contract.methods.getTreeDetails(drug).call();
+                console.log(r);
 
-                fetch(localhost + "ManufacturerDetails/" + drug).then((res) => res.json())
+               /*  fetch(localhost + "ManufacturerDetails/" + drug).then((res) => res.json())
                     .then((res) => {
                         setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug, shipment: res.DrugStatus === 'Shipped' ? false : true,status:res.DrugStatus }])
-                    })
+                    }) */
                 /*  Supplychain.methods.BatchManufactureringDetails(drug).call().then(res =>{
                     setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug,shipment: res.DrugStatus === 'Shipped' ? false : true}])
                 }) */

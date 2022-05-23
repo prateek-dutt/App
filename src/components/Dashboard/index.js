@@ -5,6 +5,8 @@ import ManufacturerDashboard from "./ManufacturerDashboard";
 import DistributorDashboard from "./DistributorDashboard";
 import WholesalerDashboard from "./WholesalerDashboard";
 import PharmacyDashboard from "./PharmacyDashboard";
+import Contract,{abi,address} from '../../helper';
+import web3 from '../../web3';
 export default function Dashboard() {
     const currentUser = localStorage.getItem("currentUser");
     //const [uaddress, setUaddress] = useState(localStorage.getItem('uaddress') || window.ethereum.selectedAddress);
@@ -17,17 +19,11 @@ export default function Dashboard() {
       /*   await Supplychain.methods.userRole(currentUser).call().then(result => {
             setRole(result);
         }); */
-        await fetch(localhost+"UserDetails/"+currentUser).then((res)=>res.json())
-        .then((res)=>{
-            if(res){
-               
-                setRole(res.Role);
-
-            }
-            
-            console.log(typeof(res.Role));
-           
-        })
+      let accounts = await web3.eth.getAccounts();
+      let a= accounts[0];
+        const role = await Contract.methods.userRole(a).call();
+        
+        setRole(role);
             
        
         

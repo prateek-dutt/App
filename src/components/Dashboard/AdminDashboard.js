@@ -4,6 +4,8 @@ import AddParticipant from "../subComponents/AddParticipant";
 import Toast from "../subComponents/Toast";
 //mport Supplychain from '../../Helper';
 import { isCursorAtEnd } from "@testing-library/user-event/dist/utils";
+import Contract,{abi,address} from '../../helper';
+import web3 from '../../web3';
 console.log('Hello');
 
 export default function AdminDashboard(){
@@ -22,28 +24,26 @@ export default function AdminDashboard(){
     async function fetchUserAddress() {
         setUserList([]);
         setAllUsers([]);
-
+        var ua=[];
         
          try {
             
             let Role='';
-            await fetch(localhost+"getUserList").then(res=>res.json())
-            .then(res => {
-                console.log(res);
-                res.map(user => {
-                    fetch(localhost+"UserDetails/"+user).then((result)=>result.json())
-                    .then((result)=>{
-                           console.log(result.Role);
-                           setUserList(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.uAddr }]);
-                           setAllUsers(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.uAddr }]);
-                        })
-                        console.log(Role);
-                        
-                    })
-                    //Supplychain.methods.BatchUserDetails(user).call().then(result => {
-                       // setUserList(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.uAddr }]);
-                        //setAllUsers(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.uAddr }]);
-                    })
+
+            let userAddresses = await Contract.methods.UserNames().call();
+            console.log(userAddresses);
+            
+             userAddresses.forEach(userAddress => {
+                let result =   Contract.methods.BatchUserDetails(userAddress).call();
+                result.then((res)=>{
+                    result=res;
+                    setUserList(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.UserName }]);
+                    setAllUsers(oldUserList => [...oldUserList, { name: result.Name, role: result.Role, userName: result.UserName, password: result.password, email: result.Email, contact: result.ContactNo, status: result.IsActive ? 'Active' : 'Inactive', userAddress: result.UserName }]);
+                })
+               
+              
+            }); 
+            
            
             }
             

@@ -3,11 +3,13 @@ import $, { isEmptyObject } from "jquery";
 import axios from 'axios';
 import UpdateProduct from "./UpdateProduct";
 //import Supplychain from '../../Helper';
-
+import Contract,{abi,address} from '../../../src/helper'
+import web3 from '../../web3';
 export default function AddProduct(props) {
 
     console.log(props);
     const { title, type, selectedProduct } = props;
+
     const [name, setName] = useState('');
     const [userName, setUserName] = useState('');
     const [status,setStatus] = useState(false);
@@ -21,8 +23,8 @@ export default function AddProduct(props) {
     const [scale, setScale] = useState('');
     const [serialNumber,setSerialNumber]=useState('');
     const localhost = "http://localhost:3000/api/";
-
-    
+    const[accounts,setAccounts]= useState(null);
+   
     function dateToEpoch(date) {
         return Math.floor(new Date(date).getTime() / 1000.0)
     }
@@ -33,14 +35,40 @@ export default function AddProduct(props) {
 
 
     async function createProduct(drugId, batchId, name, location, manufacturedDate, expiryDate, currTemp, temperature) {
-      
+      //Updated Contract Calls
+      const accounts = await  web3.eth.getAccounts(); 
+      console.log(accounts[0]);
+      let result = await Contract.methods.addDrugDetails(drugId,
+            "2",
+            name,
+            location,
+            dateToEpoch(manufacturedDate),
+            dateToEpoch(expiryDate),
+            currTemp,
+            temperature,
+            '0x0000000000000000000000000000000000000000',
+            status
+
+
+        ).send({from:accounts[0]});
+     
+
+        console.log(result);
+        window.location.reload(false)
+
+
+       
+
+
+
+/* 
         let drug = {
             "CurrentUser":localStorage.getItem('currentUser'),
             "DrugID": drugId,
             "BatchID": batchId,
             "DrugName": name,
             "Location": location,
-            "Mfg": dateToEpoch(manufacturedDate),
+            
             "Exp": dateToEpoch(expiryDate),
             "CurrentTemp": currTemp,
             "MaxTemp": temperature,
@@ -66,19 +94,28 @@ export default function AddProduct(props) {
             resetFields();
         }
         
-        )
+        ) */
 
         resetFields();
     }
 
     async function UpdateProduct(selectedProduct) {
         //console.log("The Update Function is runninh",selectedProduct);
-
+        const accounts = await  web3.eth.getAccounts(); 
         try {
+
+            //Updated Contract Calls
+
+            let res = await Contract.methods.addDrugDetails(drugId,batchId,name,location,dateToEpoch(manufacturedDate), dateToEpoch(expiryDate),currTemp,temperature,serialNumber,status).send({from:accounts[0]});
+            console.log("*********UPDATING DRUG*******************");
+            console.log(serialNumber);
+            console.log(res);
+
+
             let drug = {
                 "CurrentUser": localStorage.getItem('currentUser'),
                 "DrugID": drugId,
-                "BatchID": batchId,
+                "BatchID": ""+batchId,
                 "DrugName": name,
                 "Location": location,
                 "Mfg": dateToEpoch(manufacturedDate),
@@ -88,7 +125,7 @@ export default function AddProduct(props) {
                 "SerialNumber": serialNumber,
                 "IsBad":status
             };
-            await fetch(localhost + "UpdateDrug", {
+         /*    await fetch(localhost + "UpdateDrug", {
                 method: "POST",
                 body: JSON.stringify(drug),
                 headers: {
@@ -104,17 +141,17 @@ export default function AddProduct(props) {
                 else {
                     props.saveProduct("Failed", "Something went wrong. Please check the values you have entered and try again");
                 }
-            });
+            }); */
         }
         catch (Error) {
 
             throw Error;
         }
-
+        window.location.reload(false)
     }
 
     useEffect(() => {
-        console.log(selectedProduct);
+       // console.log(selectedProduct);
         if (selectedProduct) {
             setName(selectedProduct.name);
             setUserName(localStorage.getItem('currentUser'));
@@ -139,6 +176,7 @@ export default function AddProduct(props) {
             createProduct(drugId, batchId, name, location, manufacturedDate, expiryDate, currTemp, temperature) ;
         }
         else {
+            console.log(selectedProduct);
             UpdateProduct(selectedProduct);
         }
 

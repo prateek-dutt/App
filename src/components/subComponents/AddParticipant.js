@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 //import Supplychain from '../../Helper';
 import $ from 'jquery';
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
+
 export default function AddParticipant(props) {
 
     console.log(props);
@@ -78,15 +81,13 @@ async function createParticipant() {
             };
             console.log('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
             console.log(user);
-            await fetch(localhost+"AddUser",{
-                method:"POST",
-                body:JSON.stringify(user),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-
-            }).then((res)=>{
-                if(res.status==200)
+           
+            let accounts= await web3.eth.getAccounts();
+            
+           let res= await Contract.methods.setUser(user).send({from:accounts[0]});
+            
+            console.log(res);
+                if(res==200)
                 {
 
                     props.saveParticipant('Success',"Participant Added Successfully");
@@ -97,9 +98,9 @@ async function createParticipant() {
                     resetFields();
 
                 }
-            }
+            
 
-            )
+            
 
         }
         catch(Error)
@@ -107,7 +108,7 @@ async function createParticipant() {
             throw Error;
         }
     }
-    function updateParticipant() {
+  async  function updateParticipant() {
        console.log("The update function is running");
      //  console.log(password);
         try{
@@ -122,14 +123,10 @@ async function createParticipant() {
                 "IsActive":status
             };
             console.log(user);
-             fetch(localhost+"UpdateUser",{
-                method:"POST",
-                body:JSON.stringify(user),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            }).then((res)=>{
-                console.log(res);
+            let accounts= await web3.eth.getAccounts();
+            let r= await Contract.methods.userRole(userName).call();
+            let res= await Contract.methods.setUser(name,contactNo,userName,name,email,r,true,status).send({from:accounts[0]});
+             console.log(res);
                 if(res.status==200){
                   //  console.log("Hitting The Swagger End Point"+res);
                 props.saveParticipant('success', 'Participant updated successfully.');
@@ -138,7 +135,7 @@ async function createParticipant() {
                 else{
                     props.saveParticipant("Failed","Something went wrong. Please check the values you have entered and try again");
                 }
-           });
+        
         }
         catch(Error)
         {

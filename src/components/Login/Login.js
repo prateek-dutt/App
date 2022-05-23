@@ -2,18 +2,26 @@ import './Login.css';
 //import Supplychain from '../../Helper';
 import { useEffect, useState } from 'react';
 import { type } from '@testing-library/user-event/dist/type';
-//import web3 from '../../web3';
-
+import Contract,{abi,address} from '../../helper';
+import web3 from '../../web3';
+//import Contract,{abi , address} from '../../../helper';
 export default function Login() {
     //const ethereum = window.ethereum;
     //localStorage.setItem("isAuthenticated", false);
     
-
+ 
     const localhost =" http://localhost:3000/api/";
     const [result, setResult] = useState(false)
     const [loggedIn, setLoggedIn] = useState(false)
     const [name, setName] = useState('');
     const [pass, setPass] = useState('');
+
+    async function setAddress(){
+
+         const accounts =  await web3.eth.getAccounts();
+            setName(accounts[0]);
+            console.log(accounts[0]);
+    }
 
     useEffect(() => {
         result ? setLoggedIn(true) : setLoggedIn(false);
@@ -21,6 +29,9 @@ export default function Login() {
 
     useEffect(() => {
         localStorage.removeItem('currentUser');
+        setAddress();
+       
+
     },[])
     /* function getMeta() {
         ethereum.request({ method: 'eth_requestAccounts' });
@@ -46,13 +57,12 @@ export default function Login() {
                 }
             }); */  
            
-        
-            await fetch("http://localhost:3000/api/Authenticate/"+name+"/"+pass).then(res => 
-                
-               res.json())
-               
+           let accounts=await web3.eth.getAccounts();
+           let a= accounts[0];
+            let res= await Contract.methods.Authenticate(a,pass).call();
+            console.log(res);
 
-    .then((res)=>{
+    
         if(res)
         {
            setResult(res);
@@ -61,9 +71,9 @@ export default function Login() {
         loggedIn ? window.location.pathname = "/login" : window.location.pathname = "/dashboard";
         }
       
-    }
+    
 
-        );
+    
             
         } catch (error) {
             console.log(error);
