@@ -8,6 +8,8 @@ import ReceiveModel from "../subComponents/ReceiveModel";
 //import ReceiveModel from "../subComponents/ReceiveModel";
 import Tracking from "../subComponents/Tracking";
 import Overview from "../subComponents/Overview";
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
 export default function DistributorDashboard() {
   
     //const address = window.ethereum.selectedAddress;
@@ -117,22 +119,21 @@ export default function DistributorDashboard() {
         let PharmaDetails={};
 
         try{
-             fetch(localhost + "getDrugKeyList").then((data) => data.json())
-            .then((data)=>
-            {
+             let data= await Contract.methods.getDrugKeyList().call();
+          
                 data.map(drug=>
                     {
-                        getManDetails(drug);
-                        getDistDetails(drug);
-                        getWholesalerDetails(drug);
-                        getPharmaDetails(drug);
+                       // getManDetails(drug);
+                       // getDistDetails(drug);
+                        //getWholesalerDetails(drug);
+                        //getPharmaDetails(drug);
                        
                        
 
 
-                    })
+                    });
 
-            })
+           
         }
         catch(error)
         {
@@ -141,90 +142,92 @@ export default function DistributorDashboard() {
     }
 
     const localhost="http://localhost:3000/api/";
-    async function drugInfo() {
-        setDrugList([]);
-        setAllDrug([]);
+    
 
+    async function drugInfo() {
+
+        const acc = await web3.eth.getAccounts();
+        console.log(acc[0]);
+      
         setDrugDetList([]);
         try {
-            await fetch(localhost+"getDrugKeyList").then((data) => 
-              
-              data.json()
-            )
-            .then((data)=>{
-                B(data);
-                console.log(data);
-            })
-            
-           
-                       
-        
-        }
-        catch (error) {
+            let res = await Contract.methods.getDrugKeyList().call();
+            console.log("List OF DRUG SERIAL NUMBER");
+            console.log(res);
+            B(await Contract.methods.getDrugKeyList().call());
+    
+
+
+
+        } catch (error) {
             throw error
         }
-     /*    try {
-            await Supplychain.methods.getDrugKeyList().call().then(data => {
-                if (data) {
-                    setDrugList(data);
-                    data.map(drug => {
-                        Supplychain.methods.BatchDrugDetails(drug).call().then(result => {
-                            setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID }])
-                        })
-                        Supplychain.methods.BatchManufactureringDetails(drug).call().then(res =>{
-                            setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug,shipment: res.DrugStatus === 'Shipped' ? false : true}])
-                        })
-                    })
-
-                }
-            });
-        } */
-        
     }
+    async function B(data) {
 
-
-    async function B(data)
-    {
-        
-            console.log(data);
+            console.log("FETCHING DRUG DETAILS");
             setDrugList(data);
             setAllDrug([]);
+           // let manstat=manufacturerStatus(data);
             data.map(drug => {
+
+                let result =   Contract.methods.BatchDrugDetails(drug).call();
+                console.log("DRUG DETAILS ______+++++++++++++++++++++++++++++++++++++");
+                console.log(result);
+                console.log(drug);
+                manufacturerStatus(drug);
+                distributorStatus(drug);
+                wholeDistStatus(drug);
+                pharmaStatus(drug);
+               console.log(ManStatus);
+               console.log(pharmacyStatus);
+               console.log(distStatus);
+               console.log(wholeSalerStatus);
                
-                 fetch(localhost+"getDrugDetails/"+drug).then((result)=>result.json())
-                .then((result) => {
-                    console.log(result);
-                    setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID, shipmentStatus: result.Status, idealTemp: result.MaxTemperature,currentTemp:result.CurrentTemperature,manufactureDate:result.MfgTimeStamp,expiryDate:result.ExpTimeStamp,owner:result.CurrentproductOwner, nextOwner:result.NextOwner,Status:result.Status}]); 
-                    setDrugDetList(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID, shipmentStatus: result.Status, idealTemp: result.MaxTemperature,currentTemp:result.CurrentTemperature,manufactureDate:result.MfgTimeStamp,expiryDate:result.ExpTimeStamp,owner:result.CurrentproductOwner,nextOwner:result.NextOwner,Status:result.Status}]) ;
-                })
-                
-                fetch(localhost+"DistributorDetails/"+drug).then((res)=>res.json())
-                .then((res)=>{
-                    setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug,shipment: res.DrugStatus === 'Shipped' ? true : "Manufactured"}])
-                })
+               result.then((result)=>{
+                setAllDrug(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus,distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}]);
+                setDrugDetList(oldDta => [...oldDta, { serialNumber: drug, name: result.DrugName, batchId: result.BatchID, nextOwner: result.NextOwner, status: result.IsBad, location: result.Currentlocation, drugId: result.DrugID ,shipmentStatus:result.Status, owner:result.CurrentproductOwner, manufacturerDetails:ManStatus, distDetails:distStatus,wholesellerDetails:wholeDistStatus,pharamadetails:pharmaStatus}]);
+
+               })
+              //  let manstat="";
+              
+              
+               
+                let r  = Contract.methods.getTreeDetails(drug).call();
+                console.log(r);
+
+               /*  fetch(localhost + "ManufacturerDetails/" + drug).then((res) => res.json())
+                    .then((res) => {
+                        setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug, shipment: res.DrugStatus === 'Shipped' ? false : true,status:res.DrugStatus }])
+                    }) */
                 /*  Supplychain.methods.BatchManufactureringDetails(drug).call().then(res =>{
                     setShipmentStatus(oldDta => [...oldDta, { serialNumber: drug,shipment: res.DrugStatus === 'Shipped' ? false : true}])
                 }) */
-            })
-    
+            });
+
         
     }
+   
     async function getDetails() {
-     
+
         try {
 
+            let ret = await Contract.methods.UserNames().call();
+           // console.log("RUNNNING (((((((((((((((((((");
+            console.log(ret);
+            setUserList(ret);
 
-        await fetch(localhost+"getUserList").then((res)=>res.json())
-             .then((res)=>{
-                setUserList(res);
-                console.log(res);
-             })
-          
-            
-          
+            /* fetch(localhost + "getUserList").then((res) => res.json())
+                .then((res) => {
+                    setUserList(res);
+                    console.log(res);
+                }) */
+
+
+
         } catch (error) {
             throw error;
-        } 
+        }
         drugInfo();
         console.log(drugDetList);
     }

@@ -1,5 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { useEffect, useState } from "react";
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
 //import Supplychain from '../../Helper';
 
 
@@ -19,18 +21,31 @@ export default function ReceiveModel(props)
         
 
     }
-    async function processReceiving(drug)
+    async function ReceiveDrug()
     {
-        let post ={
+        console.log("PROCESSING DRUG"+serialNumber+importingTemp);
+       /*  let post ={
             "CurrentUser": localStorage.getItem('currentUser'),
             "SerialNumber": serialNumber,
             "Location": 'Distributor',
             "ImportTemp": importingTemp
         }
+ */
+       // console.log(post);
 
-        console.log(post);
+        //Updated Contract Calls
 
-        await fetch(localhost+"DistributorReceiving",{
+        const accounts =await  web3.eth.getAccounts();
+        console.log(accounts);
+        let ret = await Contract.methods.Receving(serialNumber,importingTemp).send({from:accounts[0]});
+        console.log("))))))))))))))))))))))))))))");
+        console.log(ret);
+
+        props.updateReceiving('success', 'Drug shipment details updated successfully.');
+                console.log("Your Drug Has Been Received");
+                
+
+      /*   await fetch(localhost+"DistributorReceiving",{
             method:"POST",
             body:JSON.stringify(post),
             headers:{
@@ -48,7 +63,13 @@ export default function ReceiveModel(props)
                 console.log(res.status);
                 
             }
-        })
+        }) */
+    }
+    async function processReceiving(e)
+    {
+        e.preventDefault();
+        ReceiveDrug()
+        
     }
     useEffect(() => {
         console.log(selectedDrugDetails);
@@ -123,7 +144,7 @@ export default function ReceiveModel(props)
                     </div> */}
                     <div className="row mb-2">
                         <div className="col-12 text-end">
-                            <button className="btn btn-primary" type="submit" data-bs-dismiss="modal" onClick={(e) => { processReceiving(selectedDrugDetails) }}>Receive</button>
+                            <button className="btn btn-primary" type="submit" data-bs-dismiss="modal" onClick={(e) => { processReceiving(e) }}>Receive</button>
                         </div>
                     </div>
                 </form>

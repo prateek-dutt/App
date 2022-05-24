@@ -66,7 +66,7 @@ export default function ManufacturerDashboard() {
         let PharmaDetails={};
 
         try{
-             let data= await Contrac.methods.getDrugKeyList().call();
+             let data= await Contract.methods.getDrugKeyList().call();
           
                 data.map(drug=>
                     {
@@ -188,7 +188,8 @@ export default function ManufacturerDashboard() {
                })
               //  let manstat="";
               
-              
+              console.log("List OF DRUGS ++++++++++++");
+              console.log(drugList);
                
                 let r  = Contract.methods.getTreeDetails(drug).call();
                 console.log(r);
@@ -204,7 +205,7 @@ export default function ManufacturerDashboard() {
 
         }
     }
-    async function A(res, det) {
+  /*   async function A(res, det) {
         await fetch(localhost + "getDrugDetails/" + det).then((res) => res.json())
             .then((res) => {
                 setDrugDetList(oldList => [...oldList, { serialNumber: det, name: res.DrugName, batchId: res.BatchID, shipmentStatus: res.Status,IsBad:res.IsBad, location: res.Currentlocation, drugId: res.DrugID }]);
@@ -218,17 +219,19 @@ export default function ManufacturerDashboard() {
                 }])
             })
 
-    }
+    } */
     async function getDetails() {
 
         try {
 
+            let ret = await Contract.methods.getDrugKeyList().call();
+            setUserList(ret);
 
-            fetch(localhost + "getUserList").then((res) => res.json())
+            /* fetch(localhost + "getUserList").then((res) => res.json())
                 .then((res) => {
                     setUserList(res);
                     console.log(res);
-                })
+                }) */
 
 
 

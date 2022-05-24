@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
+
 //import Supplychain from '../../Helper';
 
 export default function ShipModel(props) {
@@ -22,26 +25,17 @@ export default function ShipModel(props) {
             "DistributorUserName":destinationUName,
             "ExportTemp":exportingTemp
         }
-        await fetch(localhost+"ManufacturerShipping",{
-            method:"POST",
-            body:JSON.stringify(post),
-            headers:{
-                "Content-type":"application/json; charset=UTF-8"
-            }
 
-        }).then((res)=>{
-            if(res.status==200)
-            {
-                props.updateShipment('success', 'Drug shipment details updated successfully.');
+        //Updated Contract Calls
+        const accounts = await web3.eth.getAccounts();
+        let ret = await Contract.methods.Shipping(serialNumber,destinationUName,exportingTemp).send({from:accounts[0]});
+        console.log(ret);
+        props.updateShipment('success', 'Drug shipment details updated successfully.');
                 resetFields();
                 console.log("Your Drug Has Been Shipped");
-            }
-            else{
-                props.updateShipment('failed', 'Something went wrong. Please check the values you have entered and try again');
-                console.log(res.status);
                 
-            }
-        })
+
+      
 
     }
     const processShipment=(e)=> {
