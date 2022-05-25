@@ -2,6 +2,8 @@ import { type } from "@testing-library/user-event/dist/type";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header/Header";
+import Contract,{abi,address} from '../../src/helper';
+
 import $ from "jquery";
 
 export default function ShipmentTree() {
@@ -15,6 +17,7 @@ export default function ShipmentTree() {
     const [currentTemp, setCurrTemp] = useState(null);
     const [timestamp, setTimeStamp] = useState(null);
     const [location, setLocation] = useState('');
+    const[drugArr, setDrugarr]= useState([]);
     const localhost = "http://localhost:3000/api/";
 
     //console.log(JSON.parse(drug));
@@ -77,7 +80,12 @@ export default function ShipmentTree() {
     }
     async function getDrugDetails() {
 
-        await fetch(localhost + "/getDrugDetails/" + serialNo).then(res => res.json()).
+
+        let res = await Contract.methods.BatchDrugDetails(serialNo).call();
+        setDrug(res);
+        console.log(res);
+        InitiateTree(res);
+       /*  await fetch(localhost + "/getDrugDetails/" + serialNo).then(res => res.json()).
             then((res) => {
                // console.log(res);
                 //this is the drug
@@ -86,7 +94,7 @@ export default function ShipmentTree() {
                 //setTimeout(200000000000000);
                 initateTree(res)
                 // setLocation(res.CurrentLocation);
-            });
+            }); */
 
     }
     function getManufacturerDetails() {
@@ -261,6 +269,33 @@ export default function ShipmentTree() {
     setWholesalerDetials(drug);
     setPharmacyDetails(drug);
    }
+
+   async function InitiateTree(res){
+
+
+    let arr = await Contract.methods.getTreeDetails(serialNo).call();
+    console.log(arr);
+    //setDrug(arr);
+    setDrugarr(arr);
+    if(drug.Status != "Manufactured")
+    {
+        for(var i=0;i<arr.length;i++)
+        {
+            $("#"+i).addClass("active");
+            if(i==0)
+            {
+                setManufacturer(arr[i]);
+            }
+            if(i==1)
+            {
+                setDistributor(arr[i]);
+            }
+        }
+    }
+
+
+
+   }
     useEffect(() => {
        
         //getting the basic details of the drug
@@ -306,10 +341,10 @@ export default function ShipmentTree() {
                                     <div className="card1">
                                         <ul id="progressbar" className="text-center p-0 position-absolute" >
 
-                                            <li id="man" className="step0" ></li>
-                                            <li id="dist" ></li>
-                                            <li id="whole" className="step0"></li>
-                                            <li id="pharma" className="step0"></li>
+                                            <li id="0" className="step0" ></li>
+                                            <li id="1" className="step0"></li>
+                                            <li id="2" className="step0"></li>
+                                            <li id="3" className="step0"></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -330,7 +365,7 @@ export default function ShipmentTree() {
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Product Name</th>
-                                                            <td>{drug[2]}</td>
+                                                            <td>{drug.DrugName}</td>
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Batch ID</th>
@@ -338,11 +373,11 @@ export default function ShipmentTree() {
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Source</th>
-                                                            <td>{manufacturer.ManufacturerUserName || 'Self'}</td>
+                                                            <td>{manufacturer.FromUserName || 'Self'}</td>
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Destination</th>
-                                                            <td>{manufacturer.ExporterUserName || 'NA'}</td>
+                                                            <td>{manufacturer.ToUserName || 'NA'}</td>
                                                         </tr>
                                                         <tr>
                                                             <th scope="row">Current Temp.</th>
@@ -390,7 +425,7 @@ export default function ShipmentTree() {
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Source</th>
-                                                                <td>{manufacturer.ManufacturerUserName || 'NA'}</td>
+                                                                <td>{distributor.FromUserName || 'NA'}</td>
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Importing Temparature </th>
@@ -460,7 +495,7 @@ export default function ShipmentTree() {
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Importing Timestamp</th>
-                                                                <td>{(wholesaler.ImportingDateTime!= 0)? epochToDate(wholesaler.ImportingDateTime):'NA'}</td>
+                                                                <td>{(wholesaler.ImportingDateTime!= undefined)? epochToDate(wholesaler.ImportingDateTime):'NA'}</td>
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Destination</th>
@@ -472,7 +507,7 @@ export default function ShipmentTree() {
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Exporting Timestamp</th>
-                                                                <td>{(wholesaler.ExportingDateTime!= 0)? epochToDate(wholesaler.ExportingDateTime):'NA'}</td>
+                                                                <td>{(wholesaler.ExportingDateTime!= undefined)? epochToDate(wholesaler.ExportingDateTime):'NA'}</td>
                                                             </tr>
                                                             <tr>
                                                             <th scope="row">Status</th>
@@ -518,7 +553,7 @@ export default function ShipmentTree() {
                                                             </tr>
                                                             <tr>
                                                                 <th scope="row">Importing Timestamp</th>
-                                                                <td>{(pharmacy.ImportingDateTime!= 0)?epochToDate(pharmacy.ImportingDateTime):'NA'}</td>
+                                                                <td>{(pharmacy.ImportingDateTime!= undefined)?epochToDate(pharmacy.ImportingDateTime):'NA'}</td>
                                                             </tr>
                                                             <tr>
                                                             <th scope="row">Status</th>

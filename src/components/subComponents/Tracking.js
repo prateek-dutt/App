@@ -1,7 +1,8 @@
 import { each } from "jquery";
 import React, { useEffect,useState } from "react";
 import $ from 'jquery';
-
+import web3 from "../../web3";
+import Contract,{abi,address} from '../../helper';
 export default function Tracking(props)
 {
 
@@ -11,6 +12,7 @@ export default function Tracking(props)
     const[wholedistist, setWholeDistList] = useState([]);
     
     const ManStatus="";
+    
     const {drugs,drugDL,distlist,wholesalerlist,pharmalist,overview,selectedDetails,sendUpdateDetails} =props;
     const currentUser= localStorage.getItem('currentUser');
     
@@ -75,9 +77,11 @@ export default function Tracking(props)
         $("."+n).css('display','none');
      }
 
-  
+     
     useEffect(()=>
     {
+        
+        //fetchRoles();
         console.log(drugDL);
         
     },[props])

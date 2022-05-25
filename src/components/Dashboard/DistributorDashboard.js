@@ -36,6 +36,7 @@ export default function DistributorDashboard() {
     const[distlist,setDistList] = useState([]);
     const[wholesalerlist,setWholeSalerList] = useState([]);
     const[pharmalist,setPharmaList] = useState([]);
+    const[roles,setRoles] = useState([]);
 
     function getManDetails(drug)
     {
@@ -110,7 +111,7 @@ export default function DistributorDashboard() {
         })
     }
     
-    async function DrugDet()
+    /* async function DrugDet()
     {
        setDrugDL([]);
         //let ManDetials={};
@@ -140,7 +141,7 @@ export default function DistributorDashboard() {
             throw error;
         }
     }
-
+ */
     const localhost="http://localhost:3000/api/";
     
 
@@ -175,10 +176,10 @@ export default function DistributorDashboard() {
                 console.log("DRUG DETAILS ______+++++++++++++++++++++++++++++++++++++");
                 console.log(result);
                 console.log(drug);
-                manufacturerStatus(drug);
+               /*  manufacturerStatus(drug);
                 distributorStatus(drug);
                 wholeDistStatus(drug);
-                pharmaStatus(drug);
+                pharmaStatus(drug); */
                console.log(ManStatus);
                console.log(pharmacyStatus);
                console.log(distStatus);
@@ -192,9 +193,12 @@ export default function DistributorDashboard() {
               //  let manstat="";
               
               
+              console.log("+++++++++++++++++++++++++++++++++++++++++++");
                
                 let r  = Contract.methods.getTreeDetails(drug).call();
-                console.log(r);
+                r.then((r)=>{
+                    console.log(r);
+                })
 
                /*  fetch(localhost + "ManufacturerDetails/" + drug).then((res) => res.json())
                     .then((res) => {
@@ -216,6 +220,7 @@ export default function DistributorDashboard() {
            // console.log("RUNNNING (((((((((((((((((((");
             console.log(ret);
             setUserList(ret);
+            fetchRoles();
 
             /* fetch(localhost + "getUserList").then((res) => res.json())
                 .then((res) => {
@@ -345,11 +350,27 @@ export default function DistributorDashboard() {
             setPharmacyStaus(res.DrugStatus);
         })
     } */
+    async function fetchRoles()
+     {
+        console.log("ROLE LIOSTTTTTTTTTTTTT");
+        let ret =  await Contract.methods.getRoleList().call();
+       //
+    
+       ret = ret.slice(1);
+        setRoles(ret);
+        console.log("________________________________________");
+        console.log(ret,roles);
+        //setRoles(ret);
+     }
     useEffect(() => {
       
         try {
             getDetails();
-            DrugDet();
+           
+            fetchRoles();
+            
+            
+           // DrugDet();
            
             // drugInfo();
             
@@ -542,10 +563,19 @@ export default function DistributorDashboard() {
                                                     <th scope="col" class="sorting asc">Product Status</th>
                                                     {isOverview && <th scope="col" className="sorting asc" >Present Location</th>}
                                                     {isOverview && <th scope="col" className="sorting asc">Shipment Status</th>}
-                                                    {!isOverview && <th scope="col">Manufacturer</th>}
+                                                 
+                                                   {!isOverview && roles.map((product, index) => {
+                                                    return (
+                                                        <th>{product}</th>
+                                                    )
+                                                })}
+                                                 
+                                                   
+                                                   
+{/* 
                                                     {!isOverview && <th scope="col">Distributor</th>}
                                                     {!isOverview && <th scope="col">Wholesaler</th>}
-                                                    {!isOverview && <th scope="col">Pharmacy</th>}
+                                                    {!isOverview && <th scope="col">Pharmacy</th>} */}
                                                     <th scope="col">Action</th>
                                                     <th scope="col"></th>
                                                 </tr>

@@ -47,7 +47,7 @@ export default function Dashboard() {
 
     return (<div>{role && ((role.toUpperCase() === 'ADMIN' && <AdminDashboard />)
         || (role.toUpperCase() === 'MANUFACTURER' && <ManufacturerDashboard />)
-        || (role.toUpperCase() === 'DISTRIBUTOR' && <DistributorDashboard />))
-        || (role.toUpperCase() === 'WHOLESALER' && <WholesalerDashboard />)
-         || (role.toUpperCase() === 'PHARMACY' && <PharmacyDashboard />) }</div>)
+        ||  <DistributorDashboard />)
+       /*  || (role.toUpperCase() === 'WHOLESALER' && <WholesalerDashboard />)
+         || (role.toUpperCase() === 'PHARMACY' && <PharmacyDashboard />) */ }</div>)
 }
