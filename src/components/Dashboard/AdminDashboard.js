@@ -10,6 +10,7 @@ console.log('Hello');
 
 export default function AdminDashboard(){
     const [isToastActive, setIsToastActive] = useState(false);
+   
     const [isAdd, setIsAdd] = useState(false);
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('success');
@@ -107,7 +108,16 @@ export default function AdminDashboard(){
     function doSearch(filterValue,name='name')
     {
         console.log("Hello",filterValue);
+       
         filterValue === 'All' ? setUserList(allUsers) : setUserList(allUsers.filter(user => user[name].toLowerCase().includes(filterValue.toLowerCase()) ));
+    }
+    async function addRole(){
+        let v = document.getElementById("role").value;
+        const accounts = await web3.eth.getAccounts();
+        let ret = await Contract.methods.AddRole(v).send({from:accounts[0]});
+        setTimeout(40000);
+        window.location.reload(false);
+
     }
     return(
         <div>
@@ -143,6 +153,8 @@ export default function AdminDashboard(){
                                     <button className="btn btn-primary me-3" type="button" data-bs-toggle="modal" data-bs-target="#add-participant" onClick={() => setModelType('add')}>
                                         Add Participant
                                     </button>
+                                   <input type="text" placeholder="Enter A New Role" id="role"></input>
+                                    <button onClick={addRole()}>Add Role</button>
                                     <form className="d-flex">
                                         <input  id="key" className="form-control me-2" type="search" placeholder="Search" aria-label="Search" onChange={(e)=>{doSearch(e.target.value,'name')}}/>
 {/*                                         <button className="btn btn-outline-primary" type="submit" >Search</button>

@@ -16,6 +16,7 @@ export default function ManufacturerDashboard() {
     const currentUser = localStorage.getItem("currentUser");
     // const [userAddress, setUserAddress] = useState(address);
     const [userList, setUserList] = useState([]);
+    const [ roles, setRoles] = useState([]);
     const [drugList, setDrugList] = useState([]);
     const [drugDetList, setDrugDetList] = useState([]);
     //const [isOv, setIsOverview] = useState(true);
@@ -57,7 +58,7 @@ export default function ManufacturerDashboard() {
     {
         pharmaStatus(drug);
     }
-    async function DrugDet()
+   /*  async function DrugDet()
     {
        setDrugDL([]);
         //let ManDetials={};
@@ -86,7 +87,7 @@ export default function ManufacturerDashboard() {
         {
             throw error;
         }
-    }
+    } */
   //  const currentUser=localhost.getItem('currentUser');
   
   const sendUpdateDetails = (product) => {
@@ -110,7 +111,7 @@ export default function ManufacturerDashboard() {
             throw error
         }
     }
-    function getDrugJourney(n)
+  /*   function getDrugJourney(n)
     {
         //getManufacturerDetails()
         manufacturerStatus(n);
@@ -118,7 +119,7 @@ export default function ManufacturerDashboard() {
         pharmaStatus(n);
 
 
-    }
+    } */
      function manufacturerStatus(n)
 
     {
@@ -324,13 +325,26 @@ export default function ManufacturerDashboard() {
     {
         console.log("Hello");
     }
+    async function fetchRoles()
+    {
+       console.log("ROLE LIOSTTTTTTTTTTTTT");
+       let ret =  await Contract.methods.getRoleList().call();
+      //
+   
+      ret = ret.slice(1);
+       setRoles(ret);
+       console.log("________________________________________");
+       console.log(ret,roles);
+       //setRoles(ret);
+    }
     useEffect(() => {
         /*  if (!userAddress) {
              setUserAddress(window.ethereum.selectedAddress);
          } */
         try {
             getDetails();
-            DrugDet();
+           // DrugDet();
+           fetchRoles();
             //drugInfo();
         } catch (error) {
             throw error;
@@ -508,10 +522,11 @@ a drugDetList.forEach((prod1, index) => {
                                                     <th scope="col" className="sorting asc">Product Status</th>
                                                     {isOverview && <th scope="col" className="sorting asc">Present Location</th>}
                                                     {isOverview && <th scope="col" className="sorting asc">Shipment Status</th>}
-                                                    {!isOverview && <th scope="col">Manufacturer</th>}
-                                                    {!isOverview && <th scope="col">Distributor</th>}
-                                                    {!isOverview && <th scope="col">Wholesaler</th>}
-                                                    {!isOverview && <th scope="col">Pharmacy</th>}
+                                                    {!isOverview && roles.map((product, index) => {
+                                                    return (
+                                                        <th>{product}</th>
+                                                    )
+                                                })}
                                                     <th scope="col">Action</th>
                                                     <th scope="col"></th>
                                                 </tr>

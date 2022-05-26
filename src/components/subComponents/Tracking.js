@@ -14,6 +14,7 @@ export default function Tracking(props)
     const ManStatus="";
     
     const {drugs,drugDL,distlist,wholesalerlist,pharmalist,overview,selectedDetails,sendUpdateDetails} =props;
+    console.log(drugs);
     const currentUser= localStorage.getItem('currentUser');
     
     function Map()
